@@ -1,482 +1,544 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>منصة حصيف — نموذج تشغيلي موحّد (index.html)</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>حصيف — منصة تفاعلية (ملف واحد)</title>
 <style>
   :root{
-    --bg:#0b1220; --card:#0f172a; --muted:#94a3b8; --text:#e2e8f0; --accent:#22d3ee;
-    --chip:#1e293b; --ok:#22c55e; --warn:#fbbf24; --bad:#ef4444; --link:#7dd3fc;
+    /* Brand per style guide (PDF): green #5aa044, yellow #f8be43 */
+    --primary:#5aa044; --accent:#f8be43; --bg:#0b1220; --card:#101828;
+    --text:#e2e8f0; --muted:#94a3b8; --line:rgba(255,255,255,.08);
   }
   *{box-sizing:border-box}
   html,body{height:100%}
-  body{
-    margin:0; font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Noto Kufi Arabic", "Helvetica Neue", Arial, "Apple Color Emoji","Segoe UI Emoji";
-    background:linear-gradient(180deg, #0a0f1b, #0b1220 40%, #0b1220);
-    color:var(--text);
-  }
-  header{
-    position:sticky; top:0; z-index:40; backdrop-filter:saturate(1.2) blur(8px);
-    background:rgba(10,15,27,.7); border-bottom:1px solid rgba(255,255,255,.06);
-  }
-  .wrap{max-width:1200px; margin:0 auto; padding:16px}
-  .brand{display:flex; gap:12px; align-items:center}
-  .brand .logo{width:36px; height:36px; border-radius:12px; background:linear-gradient(135deg,#22d3ee,#818cf8); box-shadow:0 4px 24px rgba(34,211,238,.4)}
-  h1{font-size:clamp(20px,2vw,28px); margin:0}
-  nav{display:flex; gap:8px; flex-wrap:wrap; margin-top:10px}
-  nav a{color:var(--link); text-decoration:none; padding:6px 10px; border:1px solid rgba(255,255,255,.1); border-radius:10px}
-  main{padding:24px 0}
-  .grid{display:grid; gap:16px}
+  body{margin:0;background:linear-gradient(180deg,#0a0f1b 0,#0b1220 40%,#0b1220);color:var(--text);font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,"Noto Kufi Arabic","Helvetica Neue",Arial}
+  header{position:sticky;top:0;z-index:20;background:rgba(10,15,27,.75);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+  .wrap{max-width:1200px;margin:0 auto;padding:14px}
+  .brand{display:flex;gap:12px;align-items:center}
+  .logo{width:40px;height:40px;border-radius:12px;background:conic-gradient(from 0deg at 50% 50%, var(--accent) 0 40%, var(--primary) 40% 100%);box-shadow:0 4px 24px rgba(90,160,68,.45)}
+  h1{margin:0;font-size:clamp(18px,2.2vw,28px)}
+  nav{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+  nav a{color:#bfead0;text-decoration:none;border:1px solid var(--line);padding:6px 10px;border-radius:10px}
+  main{padding:18px 0}
+  .grid{display:grid;gap:14px}
   .g-3{grid-template-columns:repeat(auto-fill,minmax(270px,1fr))}
-  .card{
-    background:linear-gradient(180deg, rgba(255,255,255,.02), transparent);
-    border:1px solid rgba(255,255,255,.08);
-    border-radius:16px; padding:16px; box-shadow:0 10px 30px rgba(0,0,0,.25);
-  }
+  .card{background:linear-gradient(180deg,rgba(255,255,255,.03),transparent);border:1px solid var(--line);border-radius:14px;padding:14px}
+  .row{display:flex;gap:10px;flex-wrap:wrap}
+  .kbd{font-family:ui-monospace,Menlo,Consolas,monospace;background:#111827;border:1px solid var(--line);padding:2px 6px;border-radius:6px;font-size:12px}
   .muted{color:var(--muted)}
-  .pill{display:inline-flex; align-items:center; gap:6px; padding:4px 10px; border-radius:999px; background:var(--chip); color:#cbd5e1; font-size:12px; border:1px solid rgba(255,255,255,.06)}
-  .section-title{display:flex; align-items:center; justify-content:space-between; margin:24px 0 12px}
-  .section-title h2{margin:0; font-size:22px}
-  .search{display:flex; gap:8px; margin:12px 0}
-  .search input{flex:1; padding:10px 12px; border-radius:12px; border:1px solid rgba(255,255,255,.1); background:#0b1220; color:var(--text)}
-  .chips{display:flex; gap:8px; flex-wrap:wrap}
-  details{border:1px solid rgba(255,255,255,.08); border-radius:14px; background:linear-gradient(180deg, rgba(255,255,255,.02), transparent); }
-  details summary{cursor:pointer; padding:14px; font-weight:600; list-style:none}
-  details[open] summary{border-bottom:1px solid rgba(255,255,255,.06);}
-  details .content{padding:14px}
-  ul{margin:8px 0 0 0; padding:0 20px}
-  li{margin:6px 0}
-  table{width:100%; border-collapse:collapse; margin-top:10px}
-  th,td{padding:10px; border-bottom:1px solid rgba(255,255,255,.06); text-align:right}
-  .ok{color:var(--ok)} .warn{color:var(--warn)} .bad{color:var(--bad)}
-  footer{opacity:.7; font-size:12px; padding:24px 0; border-top:1px solid rgba(255,255,255,.08); margin-top:32px}
-  .kbd{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace; font-size:12px; background:#111827; border:1px solid rgba(255,255,255,.1); padding:2px 6px; border-radius:6px}
-  .badge{padding:2px 8px; border-radius:8px; border:1px solid rgba(255,255,255,.08); background:rgba(125,211,252,.08)}
-  .note{font-size:13px; color:#9ca3af}
-  .two-col{display:grid; grid-template-columns:1fr; gap:16px}
-  @media (min-width:900px){ .two-col{grid-template-columns:1.2fr .8fr} }
-  .mark{background:rgba(34,211,238,.1); padding:1px 6px; border-radius:6px; border:1px dashed rgba(34,211,238,.4)}
+  select,input,textarea,button{border-radius:10px;border:1px solid var(--line);background:#0b1220;color:var(--text);padding:10px}
+  button{background:var(--primary);border:none;color:#052e16;cursor:pointer}
+  button.secondary{background:#0b1220;color:var(--text);border:1px solid var(--line)}
+  .tabs{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}
+  .tab{padding:8px 10px;border-radius:10px;border:1px solid var(--line);cursor:pointer;background:#0b1220}
+  .tab.active{background:var(--primary);color:#052e16;border-color:transparent}
+  .hidden{display:none !important}
+  table{width:100%;border-collapse:collapse}
+  th,td{padding:10px;border-bottom:1px solid var(--line);text-align:right}
+  .tag{display:inline-flex;align-items:center;padding:2px 8px;border-radius:999px;border:1px solid var(--line);gap:6px;background:#0b1220;font-size:12px;color:#cbd5e1}
+  .danger{background:#2a0f12;color:#fecaca;border-color:#7f1d1d}
+  .ok{background:#062d18;color:#bbf7d0;border-color:#064e3b}
+  .info{background:#0a1f35;color:#bae6fd;border-color:#075985}
+  .flex{display:flex;gap:10px;align-items:center}
+  .between{justify-content:space-between}
+  .mt{margin-top:12px}
+  footer{opacity:.7;font-size:12px;padding:24px 0;border-top:1px solid var(--line);margin-top:18px}
 </style>
 </head>
 <body>
 <header>
   <div class="wrap">
     <div class="brand">
-      <div class="logo"></div>
+      <div class="logo" title="حصيف"></div>
       <div>
-        <h1>منصة حصيف — نموذج تشغيلي موحّد (ملف واحد)</h1>
-        <div class="muted">هذا ملف <span class="kbd">index.html</span> تفاعلي يعرض كل الحسابات والخدمات والمكونات، مع مصفوفة صلاحيات وأقسام المرافق/المتحدثين/الحلول/الشراكات/تقارير رؤية 2030.</div>
+        <h1>منصة حصيف — نسخة تفاعلية (ملف واحد)</h1>
+        <div class="muted">واجهة تشغيلية كاملة بمصادقة أدوار مبسطة (محلية) وتخزين بيانات في <span class="kbd">localStorage</span>.</div>
       </div>
     </div>
-    <nav>
-      <a href="#overview">نظرة عامة</a>
-      <a href="#accounts">الحسابات</a>
-      <a href="#modules">المكونات المشتركة</a>
-      <a href="#rbac">مصفوفة الصلاحيات</a>
+    <div class="row mt between">
+      <div class="flex" style="gap:8px">
+        <label>الدور الحالي:</label>
+        <select id="role"></select>
+        <button id="signAs">تسجيل الدخول كالدور المختار</button>
+        <span id="activeUser" class="tag info">غير مسجل</span>
+      </div>
+      <div class="flex" style="gap:8px">
+        <input id="search" placeholder="ابحث في السجلات" />
+        <button class="secondary" id="reset">إعادة الضبط</button>
+      </div>
+    </div>
+    <nav class="row">
+      <a href="#dash">لوحة التحكم</a>
+      <a href="#modules">المكونات</a>
+      <a href="#rbac">الصلاحيات</a>
       <a href="#vision">رؤية 2030</a>
-      <a href="#data-model">نماذج البيانات</a>
-      <a href="#how-to-implement">تنفيذ وتشغيل</a>
     </nav>
   </div>
 </header>
 
 <main class="wrap">
-  <section id="overview" class="two-col">
-    <div class="card">
-      <div class="section-title">
-        <h2>نظرة عامة</h2> <span class="pill">MVP + كل الوحدات</span>
-      </div>
-      <p>الملف التالي يُجسّد المنصة بشكل ثابت (Static) في صفحة واحدة — لعرض كل الخدمات والواجهات المطلوبة دون خادم. صُمّم ليكون مرجعًا تنفيذيًا سريعًا للمصممين والمطورين وصنّاع القرار.</p>
-      <div class="chips">
-        <span class="pill">مشاريع</span>
-        <span class="pill">فعاليات</span>
-        <span class="pill">الفرص: وظائف/تدريب/تطوع</span>
-        <span class="pill">محفظة/تبرعات/استثمار</span>
-        <span class="pill">مرافق وحجوزات</span>
-        <span class="pill">متحدثون</span>
-        <span class="pill">حلول</span>
-        <span class="pill">شراكات</span>
-        <span class="pill">تقارير رؤية 2030</span>
-      </div>
-      <div class="search">
-        <input id="q" placeholder="ابحث داخل الخدمات (مثال: تدريب تعاوني، مرافق، محفظة...)" />
-      </div>
-      <div class="note">استخدم البحث لتصفية البطاقات والقوائم أدناه فورًا.</div>
+  <section id="dash" class="card">
+    <div class="row between">
+      <h2 style="margin:0">لوحة التحكم</h2>
+      <div class="tag">تجريبي — بدون خادم</div>
     </div>
-    <div class="card">
-      <h3 style="margin:0 0 8px 0">سرعة الاستخدام</h3>
-      <ul>
-        <li>كل قسم <span class="mark">details</span> قابل للطي/الفتح.</li>
-        <li>الأقسام مُقسّمة إلى: <b>حسابات</b>، <b>مكونات مشتركة</b>، <b>صلاحيات</b>، <b>رؤية 2030</b>، <b>نماذج بيانات</b>.</li>
-        <li>يمكن نقل هذا الملف كما هو لأي فريق — لا يحتاج تثبيت.</li>
-      </ul>
-    </div>
-  </section>
-
-  <section id="accounts" class="card">
-    <div class="section-title">
-      <h2>الحسابات</h2>
-      <span class="badge">9 حسابات</span>
-    </div>
-    <div class="grid g-3" id="accounts-grid">
-      <!-- Each account card -->
-      <div class="card acct" data-tags="emirate government events facilities speakers training jobs volunteering solutions projects csr approvals vision reports">
-        <h3 style="margin:0">القطاع الحكومي / إمارة المنطقة</h3>
-        <ul>
-          <li>إدارة الفعاليات: إضافة/تسجيل/ربط مرافق ومتحدثين/تقييم.</li>
-          <li>إدارة المتحدثين: استقبال الطلبات، المسح الأمني، الاعتماد.</li>
-          <li>إدارة المرافق: إتاحة مرافق حكومية وحجزها، تقارير الاستخدام.</li>
-          <li>إدارة المشاريع التنموية وربطها برؤية 2030.</li>
-          <li>حلول التنمية: طلب/تقييم/تنفيذ الحلول.</li>
-          <li>التدريب التعاوني، التوظيف، التطوع.</li>
-          <li>تقارير رؤية 2030، الشراكات، المحفظة.</li>
-        </ul>
-      </div>
-
-      <div class="card acct" data-tags="development authority approvals facilities speakers booking review vision reports regional">
-        <h3 style="margin:0">هيئة التطوير (Development Authority)</h3>
-        <ul>
-          <li>مراجعة واعتماد: فعاليات/متحدثين/حجوزات مرافق.</li>
-          <li>تقارير وارتباطات رؤية 2030 على مستوى المنطقة/المدينة.</li>
-          <li>حلول التنمية: مراجعة وانتقاء الحلول وتحويلها لمشاريع.</li>
-          <li>الشراكات الاستراتيجية وإدارة الأثر.</li>
-        </ul>
-      </div>
-
-      <div class="card acct" data-tags="private csr projects investment subscriptions jobs training facilities partnerships solutions donations">
-        <h3 style="margin:0">القطاع الخاص</h3>
-        <ul>
-          <li>المسؤولية الاجتماعية: تصميم مبادرات وربطها بالرؤية.</li>
-          <li>المشاريع والتنمية: تمويل مشترك/تقارير الأثر.</li>
-          <li>فرص الاستثمار والاكتتابات.</li>
-          <li>التوظيف + برامج التدريب + إدارة المرافق.</li>
-          <li>الشراكات والحلول، التبرعات والمحفظة.</li>
-        </ul>
-      </div>
-
-      <div class="card acct" data-tags="nonprofit projects donations volunteers training employment events facilities solutions partnerships consulting">
-        <h3 style="margin:0">القطاع غير الربحي</h3>
-        <ul>
-          <li>إدارة المشاريع والمبادرات + طلب الاستشارات العلمية.</li>
-          <li>الحلول: طلب/تقييم/تنفيذ مع الجامعات.</li>
-          <li>التدريب/التوظيف/التطوع.</li>
-          <li>الفعاليات/المتحدثون/المرافق.</li>
-          <li>التبرعات والمحفظة والشراكات.</li>
-        </ul>
-      </div>
-
-      <div class="card acct" data-tags="university consulting research coop training speakers events volunteering partnerships vision research marketing">
-        <h3 style="margin:0">الجامعة</h3>
-        <ul>
-          <li>الاستشارات العلمية: استقبال/تقييم/رسوم إدارية/متابعة أثر.</li>
-          <li>الأبحاث وربطها بالمشاريع/الحلول.</li>
-          <li>التدريب التعاوني، الفعاليات، المتحدثون.</li>
-          <li>التطوع، الشراكات، المحفظة والمنح.</li>
-          <li>تقارير رؤية 2030 (الدعم العلمي).</li>
-        </ul>
-      </div>
-
-      <div class="card acct" data-tags="individual jobs training volunteering initiatives wallet donations events speaking">
-        <h3 style="margin:0">الأفراد</h3>
-        <ul>
-          <li>وظائف/تدريب/تطوع + فحص الميول وتوصيات ذكية.</li>
-          <li>إطلاق مبادرات فردية وربطها بالرؤية والجهات.</li>
-          <li>محفظة/تبرعات/استثمارات صغيرة.</li>
-          <li>التحدث/التدريب وفق المؤهلات.</li>
-        </ul>
-      </div>
-
-      <div class="card acct" data-tags="trainer courses paid free events materials partnerships requests">
-        <h3 style="margin:0">المدربون</h3>
-        <ul>
-          <li>إدارة دورات (مدفوعة/تطوعية) + الحقائب التدريبية.</li>
-          <li>طلبات تدريب من الجهات + تقارير الحضور والشهادات.</li>
-          <li>الفعاليات، الشراكات، التقييمات.</li>
-        </ul>
-      </div>
-
-      <div class="card acct" data-tags="incubator startup support portfolio investment mentorship">
-        <h3 style="margin:0">حاضنات ومسرّعات الأعمال</h3>
-        <ul>
-          <li>دعم الشركات الناشئة/توجيه/تسويق/شراكات.</li>
-          <li>محفظة استثمارية/تقارير الأداء.</li>
-          <li>طرح فرص/حلول للمشاريع التنموية.</li>
-        </ul>
-      </div>
-
-      <div class="card acct" data-tags="donor grants portfolio reports sponsorship">
-        <h3 style="margin:0">الجهات المانحة/المموّلون</h3>
-        <ul>
-          <li>فرص منح بحسب المعايير/محفظة مانح.</li>
-          <li>تقارير الأثر والشفافية/الرعايات.</li>
-          <li>التكامل مع المشاريع عبر الرؤية.</li>
-        </ul>
-      </div>
-    </div>
-  </section>
-
-  <section id="modules" class="card">
-    <div class="section-title">
-      <h2>المكونات المشتركة (واجهات وخدمات)</h2>
-      <span class="badge">قابلة للتوسعة</span>
-    </div>
-
-    <div class="grid g-3" id="modules-grid">
-      <details class="card mod" open data-tags="projects vision reports finance attachments workflow">
-        <summary>المشاريع والمبادرات</summary>
-        <div class="content">
-          <ul>
-            <li>CRUD المشاريع + مراحل التنفيذ + الميزانية + المرفقات + الربط برؤية 2030.</li>
-            <li>التمويل المشترك/المنح/التبرعات + تقارير الأثر.</li>
-            <li>مسارات موافقات متعددة المراحل (قابلة للضبط).</li>
-          </ul>
-        </div>
-      </details>
-
-      <details class="card mod" open data-tags="events speakers facilities approvals">
-        <summary>المحافل والفعاليات</summary>
-        <div class="content">
-          <ul>
-            <li>إنشاء فعالية/الجمهور/الجدولة/التذاكر/شهادات الحضور.</li>
-            <li>ربط متحدثين معتمدين ومرافق محجوزة.</li>
-            <li>مراجعات واعتمادات (حكومة/هيئة تطوير).</li>
-          </ul>
-        </div>
-      </details>
-
-      <details class="card mod" open data-tags="jobs training volunteer matching ai">
-        <summary>الفرص (وظائف/تدريب/تطوع)</summary>
-        <div class="content">
-          <ul>
-            <li>محرك مطابقة يعتمد الميول والمؤهلات والخبرة.</li>
-            <li>تقارير التقدم، رسائل إشعار، لوحات مرشح/جهة.</li>
-          </ul>
-        </div>
-      </details>
-
-      <details class="card mod" open data-tags="wallet donations investment payouts">
-        <summary>المحفظة الرقمية والتعاملات</summary>
-        <div class="content">
-          <ul>
-            <li>محافظ حسب الحساب + حركات مالية (إيداع/سحب/تبرع/استثمار).</li>
-            <li>تحصيل رسوم/رعايات/إعلانات/نسب مشاريع.</li>
-          </ul>
-        </div>
-      </details>
-
-      <details class="card mod" open data-tags="facilities booking calendar">
-        <summary>المرافق والحجوزات</summary>
-        <div class="content">
-          <ul>
-            <li>إضافة مرافق/سعة/سعر/صور/شروط.</li>
-            <li>حجز بمراجعة واعتماد + تقارير استخدام.</li>
-          </ul>
-        </div>
-      </details>
-
-      <details class="card mod" open data-tags="speakers registry vetting review">
-        <summary>المتحدثون</summary>
-        <div class="content">
-          <ul>
-            <li>سجل متحدثين: طلب/مسح/اعتماد/تصنيف.</li>
-            <li>ربط بالفعاليات + تقييمات.</li>
-          </ul>
-        </div>
-      </details>
-
-      <details class="card mod" open data-tags="solutions challenges review implementation">
-        <summary>الحلول</summary>
-        <div class="content">
-          <ul>
-            <li>طرح تحديات + استقبال حلول من القطاعات/الأفراد/الجامعات.</li>
-            <li>لجان تقييم + تحويل الحلول لمشاريع تنفيذية.</li>
-          </ul>
-        </div>
-      </details>
-
-      <details class="card mod" open data-tags="partnerships agreements kpis">
-        <summary>الشراكات</summary>
-        <div class="content">
-          <ul>
-            <li>اقتراح/تفاوض/تتبع/تقارير أثر.</li>
-          </ul>
-        </div>
-      </details>
-
-      <details class="card mod" open data-tags="consulting research coop">
-        <summary>الاستشارات العلمية والأبحاث والتدريب التعاوني</summary>
-        <div class="content">
-          <ul>
-            <li>طلبات استشارة للجامعات + رسوم إدارية + متابعة أثر.</li>
-            <li>ربط الأبحاث بالمشاريع/الحلول + نشر وتسويق نتائج.</li>
-            <li>برامج تدريب تعاوني بإدارة الطلبات والتقييمات.</li>
-          </ul>
-        </div>
-      </details>
-    </div>
+    <div class="tabs" id="tabs"></div>
+    <div id="views"></div>
   </section>
 
   <section id="rbac" class="card">
-    <div class="section-title">
-      <h2>مصفوفة الصلاحيات (ملخّص تنفيذي)</h2>
-      <span class="badge">قابلة للتخصيص</span>
-    </div>
-    <div class="note">هذه مصفوفة مختصرة تُظهر أبرز الأذونات. التفصيل الفني الكامل عادةً يُدار على مستوى الخدمة/المسار.</div>
-    <div style="overflow:auto">
-      <table>
-        <thead>
-          <tr>
-            <th>الدور</th>
-            <th>مشاريع</th>
-            <th>فعاليات</th>
-            <th>متحدثون</th>
-            <th>مرافق/حجوزات</th>
-            <th>فرص</th>
-            <th>تبرعات/محفظة</th>
-            <th>حلول</th>
-            <th>شراكات</th>
-            <th>تقارير رؤية 2030</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr><td>الحكومي/الإمارة</td><td class="ok">قراءة/إنشاء</td><td class="ok">إنشاء/مراجعة</td><td class="ok">اعتماد</td><td class="ok">إتاحة/اعتماد</td><td class="ok">قراءة</td><td class="ok">قراءة</td><td class="ok">طلب/مراجعة</td><td class="ok">مراجعة</td><td class="ok">تقارير شاملة</td></tr>
-          <tr><td>هيئة التطوير</td><td class="ok">قراءة</td><td class="ok">مراجعة</td><td class="ok">مراجعة</td><td class="ok">مراجعة</td><td class="ok">قراءة</td><td class="ok">قراءة</td><td class="ok">مراجعة</td><td class="ok">مراجعة</td><td class="ok">تقارير/ارتباط</td></tr>
-          <tr><td>القطاع الخاص</td><td class="ok">إنشاء</td><td class="ok">إنشاء</td><td class="warn">قراءة</td><td class="ok">إنشاء/حجز</td><td class="ok">إنشاء</td><td class="ok">تبرع/استثمار</td><td class="ok">إنشاء</td><td class="ok">إنشاء</td><td class="warn">قراءة</td></tr>
-          <tr><td>غير الربحي</td><td class="ok">إنشاء</td><td class="ok">إنشاء</td><td class="warn">تقديم</td><td class="ok">حجز</td><td class="ok">إنشاء</td><td class="ok">تبرع</td><td class="ok">طلب/إنشاء</td><td class="ok">إنشاء</td><td class="warn">قراءة</td></tr>
-          <tr><td>الجامعة</td><td class="warn">قراءة</td><td class="ok">إنشاء</td><td class="warn">تقديم</td><td class="ok">حجز</td><td class="ok">إنشاء</td><td class="warn">قراءة</td><td class="ok">مراجعة</td><td class="ok">إنشاء</td><td class="ok">ربط/تقارير</td></tr>
-          <tr><td>المتبرّع/الجهات المانحة</td><td class="warn">قراءة</td><td class="warn">قراءة</td><td class="warn">قراءة</td><td class="warn">قراءة</td><td class="warn">قراءة</td><td class="ok">تبرع</td><td class="warn">قراءة</td><td class="warn">قراءة</td><td class="ok">تقارير أثر</td></tr>
-          <tr><td>المدرب</td><td class="warn">قراءة</td><td class="ok">إدارة دورات</td><td class="ok">سجل مدرب</td><td class="warn">قراءة</td><td class="ok">إنشاء (تدريب)</td><td class="warn">قراءة</td><td class="warn">قراءة</td><td class="warn">قراءة</td><td class="warn">قراءة</td></tr>
-          <tr><td>الحاضنة/المسرّع</td><td class="warn">قراءة</td><td class="warn">قراءة</td><td class="warn">قراءة</td><td class="warn">قراءة</td><td class="ok">إنشاء</td><td class="warn">قراءة</td><td class="ok">إنشاء</td><td class="ok">إنشاء</td><td class="warn">قراءة</td></tr>
-          <tr><td>الأفراد</td><td class="warn">قراءة</td><td class="warn">قراءة</td><td class="ok">تقديم كمتحدث</td><td class="ok">حجز</td><td class="ok">تقديم طلبات</td><td class="ok">تبرع/محفظة</td><td class="warn">قراءة</td><td class="warn">قراءة</td><td class="warn">قراءة</td></tr>
-        </tbody>
-      </table>
-    </div>
+    <h2 style="margin:0 0 8px 0">مصفوفة الصلاحيات (ملخص)</h2>
+    <div id="rbacTable"></div>
   </section>
 
   <section id="vision" class="card">
-    <div class="section-title">
-      <h2>تقارير وارتباط رؤية 2030</h2>
-      <span class="badge">Strategic / Sub / Detailed</span>
+    <div class="row between">
+      <h2 style="margin:0">تقارير وارتباط رؤية 2030</h2>
+      <div class="row">
+        <select id="vEntity">
+          <option value="PROJECT">مشروع</option>
+          <option value="EVENT">فعالية</option>
+          <option value="OPPORTUNITY">فرصة</option>
+        </select>
+        <input id="vEntityId" placeholder="ID الكيان" style="width:200px">
+        <select id="vGoal"></select>
+        <button id="vLink">ربط الهدف</button>
+      </div>
     </div>
-    <details open>
-      <summary>نمذجة الأهداف (VisionGoal)</summary>
-      <div class="content">
-        <ul>
-          <li>code (مثال: <span class="kbd">P1</span>)، العنوان، المستوى (استراتيجي/فرعي/تفصيلي).</li>
-          <li>VisionLink لربط <b>مشروع/فعالية/فرصة</b> بأي هدف.</li>
-          <li>تقرير تجميعي: عدد الروابط لكل هدف عبر الكيانات.</li>
-        </ul>
-      </div>
-    </details>
-    <details open>
-      <summary>لوحة مؤشرات مبسطة</summary>
-      <div class="content">
-        <table>
-          <thead><tr><th>الهدف</th><th>مشاريع</th><th>فعاليات</th><th>فرص</th></tr></thead>
-          <tbody>
-            <tr><td>[P1] تعزيز فاعلية الحكومة</td><td>12</td><td>5</td><td>8</td></tr>
-            <tr><td>[P2] تمكين المسؤولية الاجتماعية</td><td>18</td><td>11</td><td>24</td></tr>
-            <tr><td>[P3] تنمية وتنويع الاقتصاد</td><td>27</td><td>9</td><td>31</td></tr>
-            <tr><td>[P4] تمكين حياة عامرة وصحية</td><td>15</td><td>7</td><td>12</td></tr>
-            <tr><td>[P5] تعزيز الهوية الوطنية</td><td>9</td><td>6</td><td>10</td></tr>
-          </tbody>
-        </table>
-        <div class="note">الأرقام لأغراض العرض في هذا النموذج الثابت.</div>
-      </div>
-    </details>
+    <div class="mt" id="visionReport"></div>
   </section>
 
-  <section id="data-model" class="card">
-    <div class="section-title">
-      <h2>نماذج البيانات (مُلخّص)</h2>
-      <span class="badge">قابل للتطبيق على أي Back‑End</span>
-    </div>
-    <div class="grid g-3">
-      <div class="card">
-        <h3 style="margin:0 0 8px 0">Users</h3>
-        <ul>
-          <li>id, fullName, email, role, walletId</li>
-          <li>الأدوار: INDIVIDUAL, PRIVATE, NONPROFIT, GOVERNMENT, UNIVERSITY, DONOR, TRAINER, INCUBATOR, DEVELOPMENT_AUTHORITY</li>
-        </ul>
-      </div>
-      <div class="card">
-        <h3 style="margin:0 0 8px 0">Projects / Events / Opportunities</h3>
-        <ul>
-          <li>Project: title, description, budget, status, ownerId</li>
-          <li>Event: title, date, location, ownerId</li>
-          <li>Opportunity: kind (JOB/TRAINING/VOLUNTEER), title...</li>
-        </ul>
-      </div>
-      <div class="card">
-        <h3 style="margin:0 0 8px 0">Wallet / Donation</h3>
-        <ul>
-          <li>Wallet: balance</li>
-          <li>WalletTxn: amount, kind (DEPOSIT/WITHDRAW/DONATION/INVESTMENT)</li>
-          <li>Donation: donorId, projectId, amount</li>
-        </ul>
-      </div>
-      <div class="card">
-        <h3 style="margin:0 0 8px 0">Facilities / Bookings</h3>
-        <ul>
-          <li>Facility: name, location, capacity, price, ownerId</li>
-          <li>FacilityBooking: facilityId, requesterId, dateFrom..To, status</li>
-        </ul>
-      </div>
-      <div class="card">
-        <h3 style="margin:0 0 8px 0">Speakers</h3>
-        <ul>
-          <li>Speaker: fullName, bio, field, status</li>
-        </ul>
-      </div>
-      <div class="card">
-        <h3 style="margin:0 0 8px 0">Solutions / Partnerships</h3>
-        <ul>
-          <li>Solution: title, description, submittedById, status</li>
-          <li>Partnership: title, parties(json), status, ownerId</li>
-        </ul>
-      </div>
-      <div class="card">
-        <h3 style="margin:0 0 8px 0">VisionGoal / VisionLink</h3>
-        <ul>
-          <li>VisionGoal: code, title, level</li>
-          <li>VisionLink: goalId, entity, entityId</li>
-        </ul>
-      </div>
-    </div>
-  </section>
-
-  <section id="how-to-implement" class="card">
-    <div class="section-title">
-      <h2>تشغيل فعلي لاحق (اختياري)</h2>
-      <span class="badge">Next.js / Prisma / Postgres</span>
-    </div>
-    <p class="note">إن أردت تحويل هذا الملف الثابت إلى نظام تشغيلي، فقد جهّزت سابقًا سكربت مشروع كامل. يكفي تنفيذه لإطلاق النسخة التشغيلية.</p>
-    <ul>
-      <li>مستويات الموافقات المتعددة، رفع مرفقات، مصفوفة صلاحيات على مستوى المسار/المورد.</li>
-      <li>تقارير مالية متقدمة، ربط الرعاية والإعلانات، لوحة تحكم للرعاة.</li>
-    </ul>
-  </section>
-
-  <footer>
-    <div>© منصة حصيف — ملف عرض تنفيذي موحّد.</div>
-  </footer>
+  <footer>© منصة حصيف — هذا الملف يُستخدم كمنصة تفاعلية للعرض والتجريب والتسليم للمصممين والمطورين.</footer>
 </main>
 
 <script>
-  const q = document.getElementById('q');
-  function filterCards() {
-    const term = (q.value||'').trim().toLowerCase();
-    for (const cls of ['acct','mod']) {
-      document.querySelectorAll('.' + cls).forEach(card => {
-        const tags = (card.getAttribute('data-tags') || '').toLowerCase();
-        const text = card.innerText.toLowerCase();
-        const hit = !term || tags.includes(term) || text.includes(term);
-        card.style.display = hit ? '' : 'none';
-      });
-    }
+/* =================== Seed + Models =================== */
+const ROLES = ['INDIVIDUAL','PRIVATE','NONPROFIT','GOVERNMENT','UNIVERSITY','DONOR','TRAINER','INCUBATOR','DEVELOPMENT_AUTHORITY'];
+
+const RBAC = {
+  INDIVIDUAL: ['project.read','event.read','opportunity.read','donation.read','donation.create','facility.read','booking.create','speaker.apply','volunteer.apply'],
+  PRIVATE: ['project.create','project.read','event.create','event.read','opportunity.create','opportunity.read','donation.read','donation.create','facility.read','booking.create','solution.create','partnership.create'],
+  NONPROFIT: ['project.create','project.read','event.create','event.read','opportunity.create','opportunity.read','donation.read','facility.read','booking.create','solution.create','partnership.create'],
+  GOVERNMENT: ['project.read','event.create','event.read','speaker.review','facility.read','booking.review','vision.link','vision.report','solution.review','partnership.review'],
+  UNIVERSITY: ['project.read','event.create','event.read','opportunity.create','opportunity.read','vision.link','solution.review'],
+  DONOR: ['donation.read','donation.create','project.read','vision.report'],
+  TRAINER: ['event.read','opportunity.create','opportunity.read'],
+  INCUBATOR: ['opportunity.create','solution.create','partnership.create'],
+  DEVELOPMENT_AUTHORITY: ['project.read','event.review','speaker.review','facility.review','booking.review','vision.link','vision.report','solution.review','partnership.review']
+};
+
+const TABS = [
+  { id:'projects', title:'المشاريع' },
+  { id:'events', title:'الفعاليات' },
+  { id:'opps', title:'الفرص: وظائف/تدريب/تطوع' },
+  { id:'donations', title:'التبرعات' },
+  { id:'facilities', title:'المرافق' },
+  { id:'bookings', title:'الحجوزات' },
+  { id:'speakers', title:'المتحدثون' },
+  { id:'solutions', title:'الحلول' },
+  { id:'partnerships', title:'الشراكات' },
+];
+
+const seed = () => {
+  const db = JSON.parse(localStorage.getItem('hasif-db') || '{}');
+  if (db._seed) return;
+  db.users = ROLES.map(r => ({ id: crypto.randomUUID(), email: r.toLowerCase()+'@demo.local', fullName: r+' User', role:r, wallet: 10000 }));
+  const nonprofit = db.users.find(u=>u.role==='NONPROFIT');
+  const government = db.users.find(u=>u.role==='GOVERNMENT');
+  const university = db.users.find(u=>u.role==='UNIVERSITY');
+  const donor = db.users.find(u=>u.role==='DONOR');
+
+  db.projects = [
+    { id: crypto.randomUUID(), title:'مشروع تمكين الأسر المنتجة', description:'برنامج دعم وتمويل للأسر المنتجة.', budget:250000, status:'ACTIVE', ownerId: nonprofit.id },
+    { id: crypto.randomUUID(), title:'مبادرة التدريب التعاوني', description:'ربط الطلاب بفرص تدريب ميداني.', budget:120000, status:'ACTIVE', ownerId: nonprofit.id }
+  ];
+  db.events = [
+    { id: crypto.randomUUID(), title:'ملتقى التنمية الوطنية', description:'فعالية تجمع القطاعات والشركاء.', date:new Date().toISOString(), location:'حائل', ownerId: government.id }
+  ];
+  db.opps = [
+    { id: crypto.randomUUID(), kind:'TRAINING', title:'تدريب تعاوني — علوم حاسب', description:'برنامج 12 أسبوعًا', postedById: university.id },
+    { id: crypto.randomUUID(), kind:'VOLUNTEER', title:'فرصة تطوع — فعالية مجتمعية', description:'تنظيم واستقبال', postedById: university.id }
+  ];
+  db.donations = [
+    { id: crypto.randomUUID(), donorId: donor.id, projectId: db.projects[0].id, amount: 5000, createdAt: new Date().toISOString() }
+  ];
+  db.facilities = [
+    { id: crypto.randomUUID(), name:'قاعة المؤتمرات الرئيسية', location:'حائل', capacity:400, price:0, ownerId: government.id }
+  ];
+  db.bookings = [];
+  db.speakers = [];
+  db.solutions = [];
+  db.partnerships = [];
+  db.visionGoals = [
+    { id: crypto.randomUUID(), code:'P1', title:'تعزيز فاعلية الحكومة', level:'strategic' },
+    { id: crypto.randomUUID(), code:'P2', title:'تمكين المسؤولية الاجتماعية', level:'strategic' },
+    { id: crypto.randomUUID(), code:'P3', title:'تنمية وتنويع الاقتصاد', level:'strategic' },
+    { id: crypto.randomUUID(), code:'P4', title:'تمكين حياة عامرة وصحية', level:'strategic' },
+    { id: crypto.randomUUID(), code:'P5', title:'تعزيز الهوية الوطنية', level:'strategic' },
+  ];
+  db.visionLinks = []; // {goalId, entity, entityId}
+  db._seed = true;
+  localStorage.setItem('hasif-db', JSON.stringify(db));
+};
+seed();
+
+/* =================== State =================== */
+let db = JSON.parse(localStorage.getItem('hasif-db') || '{}');
+let auth = { user:null };
+const save = ()=> localStorage.setItem('hasif-db', JSON.stringify(db));
+
+function setUserByRole(role){
+  auth.user = db.users.find(u=>u.role===role) || null;
+  document.getElementById('activeUser').textContent = auth.user ? `${auth.user.fullName} — ${auth.user.role}` : 'غير مسجل';
+  renderAll();
+}
+
+function can(...perms){ if(!auth.user) return false; const allow = RBAC[auth.user.role]||[]; return perms.every(p=>allow.includes(p)); }
+function requireOrHide(el, ...perms){ el.classList.toggle('hidden', !can(...perms)); }
+
+/* =================== UI Init =================== */
+const roleSel = document.getElementById('role');
+ROLES.forEach(r=>{ const o=document.createElement('option'); o.value=r; o.textContent=r; roleSel.appendChild(o) });
+document.getElementById('signAs').onclick = ()=> setUserByRole(roleSel.value);
+document.getElementById('reset').onclick = ()=>{ localStorage.removeItem('hasif-db'); location.reload() };
+document.getElementById('search').addEventListener('input', renderAll);
+
+const tabsEl = document.getElementById('tabs');
+const viewsEl = document.getElementById('views');
+let activeTab = 'projects';
+
+TABS.forEach(t=>{
+  const b = document.createElement('button');
+  b.className = 'tab' + (t.id===activeTab?' active':'');
+  b.textContent = t.title;
+  b.onclick = ()=>{ activeTab = t.id; renderTabs(); renderViews(); };
+  tabsEl.appendChild(b);
+});
+function renderTabs(){
+  Array.from(tabsEl.children).forEach((c,i)=>{
+    c.classList.toggle('active', TABS[i].id===activeTab);
+  });
+}
+
+/* =================== Helpers =================== */
+const q = ()=> document.getElementById('search').value.trim().toLowerCase();
+const match = (obj)=> !q() || JSON.stringify(obj).toLowerCase().includes(q());
+
+function input(id){ return document.getElementById(id); }
+function rowForm(fields, onSubmit){
+  const f = document.createElement('div'); f.className='row';
+  fields.forEach(field=> f.appendChild(field));
+  const btn = document.createElement('button'); btn.textContent='حفظ'; btn.onclick = onSubmit;
+  f.appendChild(btn);
+  return f;
+}
+function table(headers, rows){
+  const t = document.createElement('table');
+  const thead = document.createElement('thead'); const tr = document.createElement('tr');
+  headers.forEach(h=>{ const th=document.createElement('th'); th.textContent=h; tr.appendChild(th) }); thead.appendChild(tr); t.appendChild(thead);
+  const tbody = document.createElement('tbody');
+  rows.forEach(r=> tbody.appendChild(r) );
+  t.appendChild(tbody); return t;
+}
+
+/* =================== Renderers =================== */
+function viewProjects(){
+  const box = document.createElement('div');
+  // List
+  const rows = db.projects.filter(match).map(p=>{
+    const tr=document.createElement('tr');
+    [p.title,p.description,p.budget,p.status,p.id].forEach(v=>{ const td=document.createElement('td'); td.textContent=v; tr.appendChild(td) });
+    return tr;
+  });
+  box.appendChild(table(['العنوان','الوصف','الميزانية','الحالة','ID'], rows));
+  // Create
+  const createArea = document.createElement('div'); createArea.className='mt';
+  requireOrHide(createArea,'project.create');
+  const t1 = Object.assign(document.createElement('input'),{placeholder:'العنوان',id:'p_title'});
+  const t2 = Object.assign(document.createElement('input'),{placeholder:'الوصف',id:'p_desc'});
+  const t3 = Object.assign(document.createElement('input'),{placeholder:'الميزانية',type:'number',id:'p_budget'});
+  const onSubmit = ()=>{
+    if(!can('project.create')) return;
+    db.projects.push({ id: crypto.randomUUID(), title:t1.value, description:t2.value, budget:Number(t3.value)||0, status:'ACTIVE', ownerId: auth.user.id });
+    save(); renderViews();
   }
-  q.addEventListener('input', filterCards);
+  createArea.appendChild(rowForm([t1,t2,t3], onSubmit));
+  box.appendChild(createArea);
+  return box;
+}
+
+function viewEvents(){
+  const box = document.createElement('div');
+  const rows = db.events.filter(match).map(p=>{
+    const tr=document.createElement('tr');
+    [p.title,p.description,new Date(p.date).toLocaleString('ar-SA'),p.location,p.id].forEach(v=>{ const td=document.createElement('td'); td.textContent=v; tr.appendChild(td) });
+    return tr;
+  });
+  box.appendChild(table(['العنوان','الوصف','التاريخ','الموقع','ID'], rows));
+  const area = document.createElement('div'); area.className='mt'; requireOrHide(area,'event.create');
+  const a = Object.assign(document.createElement('input'),{placeholder:'العنوان',id:'e_title'});
+  const b = Object.assign(document.createElement('input'),{placeholder:'الوصف',id:'e_desc'});
+  const c = Object.assign(document.createElement('input'),{placeholder:'التاريخ',type:'datetime-local',id:'e_date'});
+  const d = Object.assign(document.createElement('input'),{placeholder:'الموقع',id:'e_loc'});
+  area.appendChild(rowForm([a,b,c,d], ()=>{
+    if(!can('event.create')) return;
+    db.events.push({ id: crypto.randomUUID(), title:a.value, description:b.value, date:new Date(c.value).toISOString(), location:d.value, ownerId: auth.user.id });
+    save(); renderViews();
+  }));
+  box.appendChild(area);
+  return box;
+}
+
+function viewOpps(){
+  const box = document.createElement('div');
+  const rows = db.opps.filter(match).map(p=>{
+    const tr=document.createElement('tr');
+    [p.kind,p.title,p.description,p.id].forEach(v=>{ const td=document.createElement('td'); td.textContent=v; tr.appendChild(td) });
+    return tr;
+  });
+  box.appendChild(table(['النوع','العنوان','الوصف','ID'], rows));
+  const area = document.createElement('div'); area.className='mt'; requireOrHide(area,'opportunity.create');
+  const sel = document.createElement('select'); ['JOB','TRAINING','VOLUNTEER'].forEach(k=>{ const o=document.createElement('option'); o.value=k; o.textContent=k; sel.appendChild(o) });
+  const a = Object.assign(document.createElement('input'),{placeholder:'العنوان'});
+  const b = Object.assign(document.createElement('input'),{placeholder:'الوصف'});
+  area.appendChild(rowForm([sel,a,b], ()=>{
+    if(!can('opportunity.create')) return;
+    db.opps.push({ id: crypto.randomUUID(), kind:sel.value, title:a.value, description:b.value, postedById: auth.user.id });
+    save(); renderViews();
+  }));
+  box.appendChild(area);
+  return box;
+}
+
+function viewDonations(){
+  const box = document.createElement('div');
+  const rows = db.donations.filter(match).map(d=>{
+    const tr=document.createElement('tr');
+    const proj = db.projects.find(p=>p.id===d.projectId); const donor = db.users.find(u=>u.id===d.donorId);
+    [proj?.title||'-', donor?.fullName||'-', d.amount, new Date(d.createdAt).toLocaleString('ar-SA'), d.id].forEach(v=>{ const td=document.createElement('td'); td.textContent=v; tr.appendChild(td) });
+    return tr;
+  });
+  box.appendChild(table(['المشروع','المتبرع','المبلغ','التاريخ','ID'], rows));
+  const area = document.createElement('div'); area.className='mt'; requireOrHide(area,'donation.create');
+  const sel = document.createElement('select');
+  db.projects.forEach(p=>{ const o=document.createElement('option'); o.value=p.id; o.textContent=p.title; sel.appendChild(o) });
+  const amt = Object.assign(document.createElement('input'),{type:'number',placeholder:'المبلغ'});
+  area.appendChild(rowForm([sel,amt], ()=>{
+    if(!can('donation.create')) return;
+    db.donations.push({ id: crypto.randomUUID(), donorId: auth.user.id, projectId: sel.value, amount: Number(amt.value)||0, createdAt: new Date().toISOString() });
+    save(); renderViews();
+  }));
+  box.appendChild(area);
+  return box;
+}
+
+function viewFacilities(){
+  const box = document.createElement('div');
+  const rows = db.facilities.filter(match).map(f=>{
+    const tr=document.createElement('tr');
+    [f.name,f.location,f.capacity,f.price,f.id].forEach(v=>{ const td=document.createElement('td'); td.textContent=v; tr.appendChild(td) });
+    return tr;
+  });
+  box.appendChild(table(['الاسم','الموقع','السعة','السعر','ID'], rows));
+  const area = document.createElement('div'); area.className='mt'; // creation guarded by review (gov/dev auth)
+  requireOrHide(area,'facility.review');
+  const a = Object.assign(document.createElement('input'),{placeholder:'الاسم'});
+  const b = Object.assign(document.createElement('input'),{placeholder:'الموقع'});
+  const c = Object.assign(document.createElement('input'),{type:'number',placeholder:'السعة'});
+  const d = Object.assign(document.createElement('input'),{type:'number',placeholder:'السعر'});
+  area.appendChild(rowForm([a,b,c,d], ()=>{
+    if(!can('facility.review')) return;
+    db.facilities.push({ id: crypto.randomUUID(), name:a.value, location:b.value, capacity:Number(c.value)||0, price:Number(d.value)||0, ownerId: auth.user.id });
+    save(); renderViews();
+  }));
+  box.appendChild(area);
+  return box;
+}
+
+function viewBookings(){
+  const box = document.createElement('div');
+  const rows = db.bookings.filter(match).map(b=>{
+    const tr=document.createElement('tr');
+    const fac = db.facilities.find(f=>f.id===b.facilityId);
+    [fac?.name||'-', new Date(b.dateFrom).toLocaleString('ar-SA'), new Date(b.dateTo).toLocaleString('ar-SA'), b.status, b.id].forEach(v=>{ const td=document.createElement('td'); td.textContent=v; tr.appendChild(td) });
+    // review button
+    const td = document.createElement('td');
+    const approve = document.createElement('button'); approve.textContent='اعتماد'; approve.onclick=()=>{ if(!can('booking.review')) return; b.status='APPROVED'; save(); renderViews(); }
+    const reject = document.createElement('button'); reject.textContent='رفض'; reject.className='secondary'; reject.onclick=()=>{ if(!can('booking.review')) return; b.status='REJECTED'; save(); renderViews(); }
+    td.appendChild(approve); td.appendChild(reject); tr.appendChild(td);
+    requireOrHide(td,'booking.review');
+    return tr;
+  });
+  box.appendChild(table(['المرفق','من','إلى','الحالة','ID','مراجعة'], rows));
+  // create
+  const area = document.createElement('div'); area.className='mt'; requireOrHide(area,'booking.create');
+  const sel = document.createElement('select'); db.facilities.forEach(f=>{ const o=document.createElement('option'); o.value=f.id; o.textContent=f.name; sel.appendChild(o) });
+  const a = Object.assign(document.createElement('input'),{type:'datetime-local',placeholder:'من'});
+  const b = Object.assign(document.createElement('input'),{type:'datetime-local',placeholder:'إلى'});
+  area.appendChild(rowForm([sel,a,b], ()=>{
+    if(!can('booking.create')) return;
+    db.bookings.push({ id: crypto.randomUUID(), facilityId: sel.value, requesterId: auth.user.id, dateFrom: new Date(a.value).toISOString(), dateTo: new Date(b.value).toISOString(), status:'PENDING' });
+    save(); renderViews();
+  }));
+  box.appendChild(area);
+  return box;
+}
+
+function viewSpeakers(){
+  const box = document.createElement('div');
+  const rows = db.speakers.filter(match).map(s=>{
+    const tr=document.createElement('tr');
+    [s.fullName,s.field||'',s.status,s.id].forEach(v=>{ const td=document.createElement('td'); td.textContent=v; tr.appendChild(td) });
+    const td=document.createElement('td');
+    const approve = document.createElement('button'); approve.textContent='اعتماد'; approve.onclick=()=>{ if(!can('speaker.review')) return; s.status='APPROVED'; save(); renderViews(); }
+    const reject = document.createElement('button'); reject.textContent='رفض'; reject.className='secondary'; reject.onclick=()=>{ if(!can('speaker.review')) return; s.status='REJECTED'; save(); renderViews(); }
+    td.appendChild(approve); td.appendChild(reject); tr.appendChild(td);
+    requireOrHide(td,'speaker.review');
+    return tr;
+  });
+  box.appendChild(table(['الاسم','التخصص','الحالة','ID','مراجعة'], rows));
+  const area = document.createElement('div'); area.className='mt'; requireOrHide(area,'speaker.apply');
+  const a = Object.assign(document.createElement('input'),{placeholder:'الاسم الكامل'});
+  const b = Object.assign(document.createElement('input'),{placeholder:'التخصص'});
+  const c = Object.assign(document.createElement('textarea'),{placeholder:'نبذة'});
+  area.appendChild(rowForm([a,b,c], ()=>{
+    if(!can('speaker.apply')) return;
+    db.speakers.push({ id: crypto.randomUUID(), fullName:a.value, field:b.value, bio:c.value, status:'PENDING' });
+    save(); renderViews();
+  }));
+  box.appendChild(area);
+  return box;
+}
+
+function viewSolutions(){
+  const box = document.createElement('div');
+  const rows = db.solutions.filter(match).map(s=>{
+    const tr=document.createElement('tr');
+    [s.title,s.description,s.status,s.id].forEach(v=>{ const td=document.createElement('td'); td.textContent=v; tr.appendChild(td) });
+    const td=document.createElement('td');
+    const review = document.createElement('button'); review.textContent='اعتماد كحل مختار'; review.onclick=()=>{ if(!can('solution.review')) return; s.status='SELECTED'; save(); renderViews(); }
+    td.appendChild(review); tr.appendChild(td); requireOrHide(td,'solution.review');
+    return tr;
+  });
+  box.appendChild(table(['العنوان','الوصف','الحالة','ID','مراجعة'], rows));
+  const area = document.createElement('div'); area.className='mt'; requireOrHide(area,'solution.create');
+  const a = Object.assign(document.createElement('input'),{placeholder:'العنوان'});
+  const b = Object.assign(document.createElement('textarea'),{placeholder:'الوصف'});
+  area.appendChild(rowForm([a,b], ()=>{
+    if(!can('solution.create')) return;
+    db.solutions.push({ id: crypto.randomUUID(), title:a.value, description:b.value, submittedById: auth.user.id, status:'NEW' });
+    save(); renderViews();
+  }));
+  box.appendChild(area);
+  return box;
+}
+
+function viewPartnerships(){
+  const box = document.createElement('div');
+  const rows = db.partnerships.filter(match).map(p=>{
+    const tr=document.createElement('tr');
+    [p.title,p.parties,p.status,p.id].forEach(v=>{ const td=document.createElement('td'); td.textContent=v; tr.appendChild(td) });
+    const td=document.createElement('td');
+    const approve = document.createElement('button'); approve.textContent='تفعيل الشراكة'; approve.onclick=()=>{ if(!can('partnership.review')) return; p.status='ACTIVE'; save(); renderViews(); }
+    td.appendChild(approve); tr.appendChild(td); requireOrHide(td,'partnership.review');
+    return tr;
+  });
+  box.appendChild(table(['العنوان','الأطراف (JSON)','الحالة','ID','مراجعة'], rows));
+  const area = document.createElement('div'); area.className='mt'; requireOrHide(area,'partnership.create');
+  const a = Object.assign(document.createElement('input'),{placeholder:'العنوان'});
+  const b = Object.assign(document.createElement('input'),{placeholder:'الأطراف (JSON)'});
+  area.appendChild(rowForm([a,b], ()=>{
+    if(!can('partnership.create')) return;
+    db.partnerships.push({ id: crypto.randomUUID(), title:a.value, parties:b.value||'[]', status:'PROPOSED', ownerId: auth.user.id });
+    save(); renderViews();
+  }));
+  box.appendChild(area);
+  return box;
+}
+
+/* =================== Vision 2030 =================== */
+const vGoalSel = document.getElementById('vGoal');
+function renderVisionGoals(){
+  vGoalSel.innerHTML='';
+  db.visionGoals.forEach(g=>{ const o=document.createElement('option'); o.value=g.id; o.textContent=`[${g.code}] ${g.title}`; vGoalSel.appendChild(o) });
+}
+document.getElementById('vLink').onclick = ()=>{
+  if(!can('vision.link')) return;
+  const entity = document.getElementById('vEntity').value;
+  const entityId = document.getElementById('vEntityId').value.trim();
+  const goalId = vGoalSel.value;
+  if(!entityId) return;
+  db.visionLinks.push({ id: crypto.randomUUID(), entity, entityId, goalId });
+  save(); renderVisionReport();
+};
+function renderVisionReport(){
+  const canReport = can('vision.report') || can('project.read'); // allow some visibility
+  const box = document.getElementById('visionReport');
+  box.innerHTML='';
+  if(!canReport){ box.textContent='ليس لديك صلاحية عرض التقارير.'; return; }
+  const agg = {}; // goalId -> {projects,events,opps}
+  db.visionGoals.forEach(g=> agg[g.id]={projects:0,events:0,opps:0});
+  db.visionLinks.forEach(l=>{
+    if(l.entity==='PROJECT') agg[l.goalId].projects++;
+    if(l.entity==='EVENT') agg[l.goalId].events++;
+    if(l.entity==='OPPORTUNITY') agg[l.goalId].opps++;
+  });
+  const rows = db.visionGoals.map(g=>{
+    const tr=document.createElement('tr');
+    const a = agg[g.id]||{projects:0,events:0,opps:0};
+    [`[${g.code}] ${g.title}`, a.projects, a.events, a.opps].forEach(v=>{ const td=document.createElement('td'); td.textContent=v; tr.appendChild(td) });
+    return tr;
+  });
+  box.appendChild(table(['الهدف','مشاريع','فعاليات','فرص'], rows));
+}
+
+/* =================== Views binding =================== */
+function renderViews(){
+  viewsEl.innerHTML='';
+  let view;
+  if(activeTab==='projects') view = viewProjects();
+  if(activeTab==='events') view = viewEvents();
+  if(activeTab==='opps') view = viewOpps();
+  if(activeTab==='donations') view = viewDonations();
+  if(activeTab==='facilities') view = viewFacilities();
+  if(activeTab==='bookings') view = viewBookings();
+  if(activeTab==='speakers') view = viewSpeakers();
+  if(activeTab==='solutions') view = viewSolutions();
+  if(activeTab==='partnerships') view = viewPartnerships();
+  viewsEl.appendChild(view);
+}
+
+function renderRBAC(){
+  const host = document.getElementById('rbacTable');
+  host.innerHTML='';
+  const head = ['الدور','مشاريع','فعاليات','متحدثون','مرافق/حجوزات','فرص','تبرعات/محفظة','حلول','شراكات','رؤية 2030'];
+  const rows = ROLES.map(r=>{
+    const tr = document.createElement('tr');
+    const cells = [
+      r,
+      RBAC[r].some(p=>p.startsWith('project.'))?'✔':'—',
+      RBAC[r].some(p=>p.startsWith('event.'))?'✔':'—',
+      RBAC[r].some(p=>p.startsWith('speaker.'))?'✔':'—',
+      RBAC[r].some(p=>p.startsWith('facility.')||p.startsWith('booking.'))?'✔':'—',
+      RBAC[r].some(p=>p.startsWith('opportunity.'))?'✔':'—',
+      RBAC[r].some(p=>p.startsWith('donation.'))?'✔':'—',
+      RBAC[r].some(p=>p.startsWith('solution.'))?'✔':'—',
+      RBAC[r].some(p=>p.startsWith('partnership.'))?'✔':'—',
+      RBAC[r].some(p=>p.startsWith('vision.'))?'✔':'—',
+    ];
+    cells.forEach(v=>{ const td=document.createElement('td'); td.textContent=v; tr.appendChild(td) });
+    return tr;
+  });
+  host.appendChild(table(head, rows));
+}
+
+function renderAll(){
+  renderTabs(); renderViews(); renderRBAC(); renderVisionGoals(); renderVisionReport();
+}
+
+/* boot */
+setUserByRole('GOVERNMENT'); // افتراضيًا يبدأ كحكومي
 </script>
 </body>
 </html>
