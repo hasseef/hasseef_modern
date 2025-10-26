@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>حصيف — منصة تفاعلية (ملف واحد)</title>
+<style>
+  :root{
+    /* Brand per style guide (PDF): green #5aa044, yellow #f8be43 */
+    --primary:#5aa044; --accent:#f8be43; --bg:#0b1220; --card:#101828;
+    --text:#e2e8f0; --muted:#94a3b8; --line:rgba(255,255,255,.08);
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{margin:0;background:linear-gradient(180deg,#0a0f1b 0,#0b1220 40%,#0b1220);color:var(--text);font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,"Noto Kufi Arabic","Helvetica Neue",Arial}
+  header{position:sticky;top:0;z-index:20;background:rgba(10,15,27,.75);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+  .wrap{max-width:1200px;margin:0 auto;padding:14px}
+  .brand{display:flex;gap:12px;align-items:center}
+  .logo{width:40px;height:40px;border-radius:12px;background:conic-gradient(from 0deg at 50% 50%, var(--accent) 0 40%, var(--primary) 40% 100%);box-shadow:0 4px 24px rgba(90,160,68,.45)}
+  h1{margin:0;font-size:clamp(18px,2.2vw,28px)}
+  nav{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+  nav a{color:#bfead0;text-decoration:none;border:1px solid var(--line);padding:6px 10px;border-radius:10px}
+  main{padding:18px 0}
+  .grid{display:grid;gap:14px}
+  .g-3{grid-template-columns:repeat(auto-fill,minmax(270px,1fr))}
+  .card{background:linear-gradient(180deg,rgba(255,255,255,.03),transparent);border:1px solid var(--line);border-radius:14px;padding:14px}
+  .row{display:flex;gap:10px;flex-wrap:wrap}
+  .kbd{font-family:ui-monospace,Menlo,Consolas,monospace;background:#111827;border:1px solid var(--line);padding:2px 6px;border-radius:6px;font-size:12px}
+  .muted{color:var(--muted)}
+  select,input,textarea,button{border-radius:10px;border:1px solid var(--line);background:#0b1220;color:var(--text);padding:10px}
+  button{background:var(--primary);border:none;color:#052e16;cursor:pointer}
+  button.secondary{background:#0b1220;color:var(--text);border:1px solid var(--line)}
+  .tabs{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}
+  .tab{padding:8px 10px;border-radius:10px;border:1px solid var(--line);cursor:pointer;background:#0b1220}
+  .tab.active{background:var(--primary);color:#052e16;border-color:transparent}
+  .hidden{display:none !important}
+  table{width:100%;border-collapse:collapse}
+  th,td{padding:10px;border-bottom:1px solid var(--line);text-align:right}
+  .tag{display:inline-flex;align-items:center;padding:2px 8px;border-radius:999px;border:1px solid var(--line);gap:6px;background:#0b1220;font-size:12px;color:#cbd5e1}
+  .danger{background:#2a0f12;color:#fecaca;border-color:#7f1d1d}
+  .ok{background:#062d18;color:#bbf7d0;border-color:#064e3b}
+  .info{background:#0a1f35;color:#bae6fd;border-color:#075985}
+  .flex{display:flex;gap:10px;align-items:center}
+  .between{justify-content:space-between}
+  .mt{margin-top:12px}
+  footer{opacity:.7;font-size:12px;padding:24px 0;border-top:1px solid var(--line);margin-top:18px}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <div class="brand">
+      <div class="logo" title="حصيف"></div>
+      <div>
+        <h1>منصة حصيف — نسخة تفاعلية (ملف واحد)</h1>
+        <div class="muted">واجهة تشغيلية كاملة بمصادقة أدوار مبسطة (محلية) وتخزين بيانات في <span class="kbd">localStorage</span>.</div>
+      </div>
+    </div>
+    <div class="row mt between">
+      <div class="flex" style="gap:8px">
+        <label>الدور الحالي:</label>
+        <select id="role"></select>
+        <button id="signAs">تسجيل الدخول كالدور المختار</button>
+        <span id="activeUser" class="tag info">غير مسجل</span>
+      </div>
+      <div class="flex" style="gap:8px">
+        <input id="search" placeholder="ابحث في السجلات" />
+        <button class="secondary" id="reset">إعادة الضبط</button>
+      </div>
+    </div>
+    <nav class="row">
+      <a href="#dash">لوحة التحكم</a>
+      <a href="#modules">المكونات</a>
+      <a href="#rbac">الصلاحيات</a>
+      <a href="#vision">رؤية 2030</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <section id="dash" class="card">
+    <div class="row between">
+      <h2 style="margin:0">لوحة التحكم</h2>
+      <div class="tag">تجريبي — بدون خادم</div>
+    </div>
+    <div class="tabs" id="tabs"></div>
+    <div id="views"></div>
+  </section>
+
+  <section id="rbac" class="card">
+    <h2 style="margin:0 0 8px 0">مصفوفة الصلاحيات (ملخص)</h2>
+    <div id="rbacTable"></div>
+  </section>
+
+  <section id="vision" class="card">
+    <div class="row between">
+      <h2 style="margin:0">تقارير وارتباط رؤية 2030</h2>
+      <div class="row">
+        <select id="vEntity">
+          <option value="PROJECT">مشروع</option>
+          <option value="EVENT">فعالية</option>
+          <option value="OPPORTUNITY">فرصة</option>
+        </select>
+        <input id="vEntityId" placeholder="ID الكيان" style="width:200px">
+        <select id="vGoal"></select>
+        <button id="vLink">ربط الهدف</button>
+      </div>
+    </div>
+    <div class="mt" id="visionReport"></div>
+  </section>
+
+  <footer>© منصة حصيف — هذا الملف يُستخدم كمنصة تفاعلية للعرض والتجريب والتسليم للمصممين والمطورين.</footer>
+</main>
+
+<script>
+/* =================== Seed + Models =================== */
+const ROLES = ['INDIVIDUAL','PRIVATE','NONPROFIT','GOVERNMENT','UNIVERSITY','DONOR','TRAINER','INCUBATOR','DEVELOPMENT_AUTHORITY'];
+
+const RBAC = {
+  INDIVIDUAL: ['project.read','event.read','opportunity.read','donation.read','donation.create','facility.read','booking.create','speaker.apply','volunteer.apply'],
+  PRIVATE: ['project.create','project.read','event.create','event.read','opportunity.create','opportunity.read','donation.read','donation.create','facility.read','booking.create','solution.create','partnership.create'],
+  NONPROFIT: ['project.create','project.read','event.create','event.read','opportunity.create','opportunity.read','donation.read','facility.read','booking.create','solution.create','partnership.create'],
+  GOVERNMENT: ['project.read','event.create','event.read','speaker.review','facility.read','booking.review','vision.link','vision.report','solution.review','partnership.review'],
+  UNIVERSITY: ['project.read','event.create','event.read','opportunity.create','opportunity.read','vision.link','solution.review'],
+  DONOR: ['donation.read','donation.create','project.read','vision.report'],
+  TRAINER: ['event.read','opportunity.create','opportunity.read'],
+  INCUBATOR: ['opportunity.create','solution.create','partnership.create'],
+  DEVELOPMENT_AUTHORITY: ['project.read','event.review','speaker.review','facility.review','booking.review','vision.link','vision.report','solution.review','partnership.review']
+};
+
+const TABS = [
+  { id:'projects', title:'المشاريع' },
+  { id:'events', title:'الفعاليات' },
+  { id:'opps', title:'الفرص: وظائف/تدريب/تطوع' },
+  { id:'donations', title:'التبرعات' },
+  { id:'facilities', title:'المرافق' },
+  { id:'bookings', title:'الحجوزات' },
+  { id:'speakers', title:'المتحدثون' },
+  { id:'solutions', title:'الحلول' },
+  { id:'partnerships', title:'الشراكات' },
+];
+
+const seed = () => {
+  const db = JSON.parse(localStorage.getItem('hasif-db') || '{}');
+  if (db._seed) return;
+  db.users = ROLES.map(r => ({ id: crypto.randomUUID(), email: r.toLowerCase()+'@demo.local', fullName: r+' User', role:r, wallet: 10000 }));
+  const nonprofit = db.users.find(u=>u.role==='NONPROFIT');
+  const government = db.users.find(u=>u.role==='GOVERNMENT');
+  const university = db.users.find(u=>u.role==='UNIVERSITY');
+  const donor = db.users.find(u=>u.role==='DONOR');
+
+  db.projects = [
+    { id: crypto.randomUUID(), title:'مشروع تمكين الأسر المنتجة', description:'برنامج دعم وتمويل للأسر المنتجة.', budget:250000, status:'ACTIVE', ownerId: nonprofit.id },
+    { id: crypto.randomUUID(), title:'مبادرة التدريب التعاوني', description:'ربط الطلاب بفرص تدريب ميداني.', budget:120000, status:'ACTIVE', ownerId: nonprofit.id }
+  ];
+  db.events = [
+    { id: crypto.randomUUID(), title:'ملتقى التنمية الوطنية', description:'فعالية تجمع القطاعات والشركاء.', date:new Date().toISOString(), location:'حائل', ownerId: government.id }
+  ];
+  db.opps = [
+    { id: crypto.randomUUID(), kind:'TRAINING', title:'تدريب تعاوني — علوم حاسب', description:'برنامج 12 أسبوعًا', postedById: university.id },
+    { id: crypto.randomUUID(), kind:'VOLUNTEER', title:'فرصة تطوع — فعالية مجتمعية', description:'تنظيم واستقبال', postedById: university.id }
+  ];
+  db.donations = [
+    { id: crypto.randomUUID(), donorId: donor.id, projectId: db.projects[0].id, amount: 5000, createdAt: new Date().toISOString() }
+  ];
+  db.facilities = [
+    { id: crypto.randomUUID(), name:'قاعة المؤتمرات الرئيسية', location:'حائل', capacity:400, price:0, ownerId: government.id }
+  ];
+  db.bookings = [];
+  db.speakers = [];
+  db.solutions = [];
+  db.partnerships = [];
+  db.visionGoals = [
+    { id: crypto.randomUUID(), code:'P1', title:'تعزيز فاعلية الحكومة', level:'strategic' },
+    { id: crypto.randomUUID(), code:'P2', title:'تمكين المسؤولية الاجتماعية', level:'strategic' },
+    { id: crypto.randomUUID(), code:'P3', title:'تنمية وتنويع الاقتصاد', level:'strategic' },
+    { id: crypto.randomUUID(), code:'P4', title:'تمكين حياة عامرة وصحية', level:'strategic' },
+    { id: crypto.randomUUID(), code:'P5', title:'تعزيز الهوية الوطنية', level:'strategic' },
+  ];
+  db.visionLinks = []; // {goalId, entity, entityId}
+  db._seed = true;
+  localStorage.setItem('hasif-db', JSON.stringify(db));
+};
+seed();
+
+/* =================== State =================== */
+let db = JSON.parse(localStorage.getItem('hasif-db') || '{}');
+let auth = { user:null };
+const save = ()=> localStorage.setItem('hasif-db', JSON.stringify(db));
+
+function setUserByRole(role){
+  auth.user = db.users.find(u=>u.role===role) || null;
+  document.getElementById('activeUser').textContent = auth.user ? `${auth.user.fullName} — ${auth.user.role}` : 'غير مسجل';
+  renderAll();
+}
+
+function can(...perms){ if(!auth.user) return false; const allow = RBAC[auth.user.role]||[]; return perms.every(p=>allow.includes(p)); }
+function requireOrHide(el, ...perms){ el.classList.toggle('hidden', !can(...perms)); }
+
+/* =================== UI Init =================== */
+const roleSel = document.getElementById('role');
+ROLES.forEach(r=>{ const o=document.createElement('option'); o.value=r; o.textContent=r; roleSel.appendChild(o) });
+document.getElementById('signAs').onclick = ()=> setUserByRole(roleSel.value);
+document.getElementById('reset').onclick = ()=>{ localStorage.removeItem('hasif-db'); location.reload() };
+document.getElementById('search').addEventListener('input', renderAll);
+
+const tabsEl = document.getElementById('tabs');
+const viewsEl = document.getElementById('views');
+let activeTab = 'projects';
+
+TABS.forEach(t=>{
+  const b = document.createElement('button');
+  b.className = 'tab' + (t.id===activeTab?' active':'');
+  b.textContent = t.title;
+  b.onclick = ()=>{ activeTab = t.id; renderTabs(); renderViews(); };
+  tabsEl.appendChild(b);
+});
+function renderTabs(){
+  Array.from(tabsEl.children).forEach((c,i)=>{
+    c.classList.toggle('active', TABS[i].id===activeTab);
+  });
+}
+
+/* =================== Helpers =================== */
+const q = ()=> document.getElementById('search').value.trim().toLowerCase();
+const match = (obj)=> !q() || JSON.stringify(obj).toLowerCase().includes(q());
+
+function input(id){ return document.getElementById(id); }
+function rowForm(fields, onSubmit){
+  const f = document.createElement('div'); f.className='row';
+  fields.forEach(field=> f.appendChild(field));
+  const btn = document.createElement('button'); btn.textContent='حفظ'; btn.onclick = onSubmit;
+  f.appendChild(btn);
+  return f;
+}
+function table(headers, rows){
+  const t = document.createElement('table');
+  const thead = document.createElement('thead'); const tr = document.createElement('tr');
+  headers.forEach(h=>{ const th=document.createElement('th'); th.textContent=h; tr.appendChild(th) }); thead.appendChild(tr); t.appendChild(thead);
+  const tbody = document.createElement('tbody');
+  rows.forEach(r=> tbody.appendChild(r) );
+  t.appendChild(tbody); return t;
+}
+
+/* =================== Renderers =================== */
+function viewProjects(){
+  const box = document.createElement('div');
+  // List
+  const rows = db.projects.filter(match).map(p=>{
+    const tr=document.createElement('tr');
+    [p.title,p.description,p.budget,p.status,p.id].forEach(v=>{ const td=document.createElement('td'); td.textContent=v; tr.appendChild(td) });
+    return tr;
+  });
+  box.appendChild(table(['العنوان','الوصف','الميزانية','الحالة','ID'], rows));
+  // Create
+  const createArea = document.createElement('div'); createArea.className='mt';
+  requireOrHide(createArea,'project.create');
+  const t1 = Object.assign(document.createElement('input'),{placeholder:'العنوان',id:'p_title'});
+  const t2 = Object.assign(document.createElement('input'),{placeholder:'الوصف',id:'p_desc'});
+  const t3 = Object.assign(document.createElement('input'),{placeholder:'الميزانية',type:'number',id:'p_budget'});
+  const onSubmit = ()=>{
+    if(!can('project.create')) return;
+    db.projects.push({ id: crypto.randomUUID(), title:t1.value, description:t2.value, budget:Number(t3.value)||0, status:'ACTIVE', ownerId: auth.user.id });
+    save(); renderViews();
+  }
+  createArea.appendChild(rowForm([t1,t2,t3], onSubmit));
+  box.appendChild(createArea);
+  return box;
+}
+
+function viewEvents(){
+  const box = document.createElement('div');
+  const rows = db.events.filter(match).map(p=>{
+    const tr=document.createElement('tr');
+    [p.title,p.description,new Date(p.date).toLocaleString('ar-SA'),p.location,p.id].forEach(v=>{ const td=document.createElement('td'); td.textContent=v; tr.appendChild(td) });
+    return tr;
+  });
+  box.appendChild(table(['العنوان','الوصف','التاريخ','الموقع','ID'], rows));
+  const area = document.createElement('div'); area.className='mt'; requireOrHide(area,'event.create');
+  const a = Object.assign(document.createElement('input'),{placeholder:'العنوان',id:'e_title'});
+  const b = Object.assign(document.createElement('input'),{placeholder:'الوصف',id:'e_desc'});
+  const c = Object.assign(document.createElement('input'),{placeholder:'التاريخ',type:'datetime-local',id:'e_date'});
+  const d = Object.assign(document.createElement('input'),{placeholder:'الموقع',id:'e_loc'});
+  area.appendChild(rowForm([a,b,c,d], ()=>{
+    if(!can('event.create')) return;
+    db.events.push({ id: crypto.randomUUID(), title:a.value, description:b.value, date:new Date(c.value).toISOString(), location:d.value, ownerId: auth.user.id });
+    save(); renderViews();
+  }));
+  box.appendChild(area);
+  return box;
+}
+
+function viewOpps(){
+  const box = document.createElement('div');
+  const rows = db.opps.filter(match).map(p=>{
+    const tr=document.createElement('tr');
+    [p.kind,p.title,p.description,p.id].forEach(v=>{ const td=document.createElement('td'); td.textContent=v; tr.appendChild(td) });
+    return tr;
+  });
+  box.appendChild(table(['النوع','العنوان','الوصف','ID'], rows));
+  const area = document.createElement('div'); area.className='mt'; requireOrHide(area,'opportunity.create');
+  const sel = document.createElement('select'); ['JOB','TRAINING','VOLUNTEER'].forEach(k=>{ const o=document.createElement('option'); o.value=k; o.textContent=k; sel.appendChild(o) });
+  const a = Object.assign(document.createElement('input'),{placeholder:'العنوان'});
+  const b = Object.assign(document.createElement('input'),{placeholder:'الوصف'});
+  area.appendChild(rowForm([sel,a,b], ()=>{
+    if(!can('opportunity.create')) return;
+    db.opps.push({ id: crypto.randomUUID(), kind:sel.value, title:a.value, description:b.value, postedById: auth.user.id });
+    save(); renderViews();
+  }));
+  box.appendChild(area);
+  return box;
+}
+
+function viewDonations(){
+  const box = document.createElement('div');
+  const rows = db.donations.filter(match).map(d=>{
+    const tr=document.createElement('tr');
+    const proj = db.projects.find(p=>p.id===d.projectId); const donor = db.users.find(u=>u.id===d.donorId);
+    [proj?.title||'-', donor?.fullName||'-', d.amount, new Date(d.createdAt).toLocaleString('ar-SA'), d.id].forEach(v=>{ const td=document.createElement('td'); td.textContent=v; tr.appendChild(td) });
+    return tr;
+  });
+  box.appendChild(table(['المشروع','المتبرع','المبلغ','التاريخ','ID'], rows));
+  const area = document.createElement('div'); area.className='mt'; requireOrHide(area,'donation.create');
+  const sel = document.createElement('select');
+  db.projects.forEach(p=>{ const o=document.createElement('option'); o.value=p.id; o.textContent=p.title; sel.appendChild(o) });
+  const amt = Object.assign(document.createElement('input'),{type:'number',placeholder:'المبلغ'});
+  area.appendChild(rowForm([sel,amt], ()=>{
+    if(!can('donation.create')) return;
+    db.donations.push({ id: crypto.randomUUID(), donorId: auth.user.id, projectId: sel.value, amount: Number(amt.value)||0, createdAt: new Date().toISOString() });
+    save(); renderViews();
+  }));
+  box.appendChild(area);
+  return box;
+}
+
+function viewFacilities(){
+  const box = document.createElement('div');
+  const rows = db.facilities.filter(match).map(f=>{
+    const tr=document.createElement('tr');
+    [f.name,f.location,f.capacity,f.price,f.id].forEach(v=>{ const td=document.createElement('td'); td.textContent=v; tr.appendChild(td) });
+    return tr;
+  });
+  box.appendChild(table(['الاسم','الموقع','السعة','السعر','ID'], rows));
+  const area = document.createElement('div'); area.className='mt'; // creation guarded by review (gov/dev auth)
+  requireOrHide(area,'facility.review');
+  const a = Object.assign(document.createElement('input'),{placeholder:'الاسم'});
+  const b = Object.assign(document.createElement('input'),{placeholder:'الموقع'});
+  const c = Object.assign(document.createElement('input'),{type:'number',placeholder:'السعة'});
+  const d = Object.assign(document.createElement('input'),{type:'number',placeholder:'السعر'});
+  area.appendChild(rowForm([a,b,c,d], ()=>{
+    if(!can('facility.review')) return;
+    db.facilities.push({ id: crypto.randomUUID(), name:a.value, location:b.value, capacity:Number(c.value)||0, price:Number(d.value)||0, ownerId: auth.user.id });
+    save(); renderViews();
+  }));
+  box.appendChild(area);
+  return box;
+}
+
+function viewBookings(){
+  const box = document.createElement('div');
+  const rows = db.bookings.filter(match).map(b=>{
+    const tr=document.createElement('tr');
+    const fac = db.facilities.find(f=>f.id===b.facilityId);
+    [fac?.name||'-', new Date(b.dateFrom).toLocaleString('ar-SA'), new Date(b.dateTo).toLocaleString('ar-SA'), b.status, b.id].forEach(v=>{ const td=document.createElement('td'); td.textContent=v; tr.appendChild(td) });
+    // review button
+    const td = document.createElement('td');
+    const approve = document.createElement('button'); approve.textContent='اعتماد'; approve.onclick=()=>{ if(!can('booking.review')) return; b.status='APPROVED'; save(); renderViews(); }
+    const reject = document.createElement('button'); reject.textContent='رفض'; reject.className='secondary'; reject.onclick=()=>{ if(!can('booking.review')) return; b.status='REJECTED'; save(); renderViews(); }
+    td.appendChild(approve); td.appendChild(reject); tr.appendChild(td);
+    requireOrHide(td,'booking.review');
+    return tr;
+  });
+  box.appendChild(table(['المرفق','من','إلى','الحالة','ID','مراجعة'], rows));
+  // create
+  const area = document.createElement('div'); area.className='mt'; requireOrHide(area,'booking.create');
+  const sel = document.createElement('select'); db.facilities.forEach(f=>{ const o=document.createElement('option'); o.value=f.id; o.textContent=f.name; sel.appendChild(o) });
+  const a = Object.assign(document.createElement('input'),{type:'datetime-local',placeholder:'من'});
+  const b = Object.assign(document.createElement('input'),{type:'datetime-local',placeholder:'إلى'});
+  area.appendChild(rowForm([sel,a,b], ()=>{
+    if(!can('booking.create')) return;
+    db.bookings.push({ id: crypto.randomUUID(), facilityId: sel.value, requesterId: auth.user.id, dateFrom: new Date(a.value).toISOString(), dateTo: new Date(b.value).toISOString(), status:'PENDING' });
+    save(); renderViews();
+  }));
+  box.appendChild(area);
+  return box;
+}
+
+function viewSpeakers(){
+  const box = document.createElement('div');
+  const rows = db.speakers.filter(match).map(s=>{
+    const tr=document.createElement('tr');
+    [s.fullName,s.field||'',s.status,s.id].forEach(v=>{ const td=document.createElement('td'); td.textContent=v; tr.appendChild(td) });
+    const td=document.createElement('td');
+    const approve = document.createElement('button'); approve.textContent='اعتماد'; approve.onclick=()=>{ if(!can('speaker.review')) return; s.status='APPROVED'; save(); renderViews(); }
+    const reject = document.createElement('button'); reject.textContent='رفض'; reject.className='secondary'; reject.onclick=()=>{ if(!can('speaker.review')) return; s.status='REJECTED'; save(); renderViews(); }
+    td.appendChild(approve); td.appendChild(reject); tr.appendChild(td);
+    requireOrHide(td,'speaker.review');
+    return tr;
+  });
+  box.appendChild(table(['الاسم','التخصص','الحالة','ID','مراجعة'], rows));
+  const area = document.createElement('div'); area.className='mt'; requireOrHide(area,'speaker.apply');
+  const a = Object.assign(document.createElement('input'),{placeholder:'الاسم الكامل'});
+  const b = Object.assign(document.createElement('input'),{placeholder:'التخصص'});
+  const c = Object.assign(document.createElement('textarea'),{placeholder:'نبذة'});
+  area.appendChild(rowForm([a,b,c], ()=>{
+    if(!can('speaker.apply')) return;
+    db.speakers.push({ id: crypto.randomUUID(), fullName:a.value, field:b.value, bio:c.value, status:'PENDING' });
+    save(); renderViews();
+  }));
+  box.appendChild(area);
+  return box;
+}
+
+function viewSolutions(){
+  const box = document.createElement('div');
+  const rows = db.solutions.filter(match).map(s=>{
+    const tr=document.createElement('tr');
+    [s.title,s.description,s.status,s.id].forEach(v=>{ const td=document.createElement('td'); td.textContent=v; tr.appendChild(td) });
+    const td=document.createElement('td');
+    const review = document.createElement('button'); review.textContent='اعتماد كحل مختار'; review.onclick=()=>{ if(!can('solution.review')) return; s.status='SELECTED'; save(); renderViews(); }
+    td.appendChild(review); tr.appendChild(td); requireOrHide(td,'solution.review');
+    return tr;
+  });
+  box.appendChild(table(['العنوان','الوصف','الحالة','ID','مراجعة'], rows));
+  const area = document.createElement('div'); area.className='mt'; requireOrHide(area,'solution.create');
+  const a = Object.assign(document.createElement('input'),{placeholder:'العنوان'});
+  const b = Object.assign(document.createElement('textarea'),{placeholder:'الوصف'});
+  area.appendChild(rowForm([a,b], ()=>{
+    if(!can('solution.create')) return;
+    db.solutions.push({ id: crypto.randomUUID(), title:a.value, description:b.value, submittedById: auth.user.id, status:'NEW' });
+    save(); renderViews();
+  }));
+  box.appendChild(area);
+  return box;
+}
+
+function viewPartnerships(){
+  const box = document.createElement('div');
+  const rows = db.partnerships.filter(match).map(p=>{
+    const tr=document.createElement('tr');
+    [p.title,p.parties,p.status,p.id].forEach(v=>{ const td=document.createElement('td'); td.textContent=v; tr.appendChild(td) });
+    const td=document.createElement('td');
+    const approve = document.createElement('button'); approve.textContent='تفعيل الشراكة'; approve.onclick=()=>{ if(!can('partnership.review')) return; p.status='ACTIVE'; save(); renderViews(); }
+    td.appendChild(approve); tr.appendChild(td); requireOrHide(td,'partnership.review');
+    return tr;
+  });
+  box.appendChild(table(['العنوان','الأطراف (JSON)','الحالة','ID','مراجعة'], rows));
+  const area = document.createElement('div'); area.className='mt'; requireOrHide(area,'partnership.create');
+  const a = Object.assign(document.createElement('input'),{placeholder:'العنوان'});
+  const b = Object.assign(document.createElement('input'),{placeholder:'الأطراف (JSON)'});
+  area.appendChild(rowForm([a,b], ()=>{
+    if(!can('partnership.create')) return;
+    db.partnerships.push({ id: crypto.randomUUID(), title:a.value, parties:b.value||'[]', status:'PROPOSED', ownerId: auth.user.id });
+    save(); renderViews();
+  }));
+  box.appendChild(area);
+  return box;
+}
+
+/* =================== Vision 2030 =================== */
+const vGoalSel = document.getElementById('vGoal');
+function renderVisionGoals(){
+  vGoalSel.innerHTML='';
+  db.visionGoals.forEach(g=>{ const o=document.createElement('option'); o.value=g.id; o.textContent=`[${g.code}] ${g.title}`; vGoalSel.appendChild(o) });
+}
+document.getElementById('vLink').onclick = ()=>{
+  if(!can('vision.link')) return;
+  const entity = document.getElementById('vEntity').value;
+  const entityId = document.getElementById('vEntityId').value.trim();
+  const goalId = vGoalSel.value;
+  if(!entityId) return;
+  db.visionLinks.push({ id: crypto.randomUUID(), entity, entityId, goalId });
+  save(); renderVisionReport();
+};
+function renderVisionReport(){
+  const canReport = can('vision.report') || can('project.read'); // allow some visibility
+  const box = document.getElementById('visionReport');
+  box.innerHTML='';
+  if(!canReport){ box.textContent='ليس لديك صلاحية عرض التقارير.'; return; }
+  const agg = {}; // goalId -> {projects,events,opps}
+  db.visionGoals.forEach(g=> agg[g.id]={projects:0,events:0,opps:0});
+  db.visionLinks.forEach(l=>{
+    if(l.entity==='PROJECT') agg[l.goalId].projects++;
+    if(l.entity==='EVENT') agg[l.goalId].events++;
+    if(l.entity==='OPPORTUNITY') agg[l.goalId].opps++;
+  });
+  const rows = db.visionGoals.map(g=>{
+    const tr=document.createElement('tr');
+    const a = agg[g.id]||{projects:0,events:0,opps:0};
+    [`[${g.code}] ${g.title}`, a.projects, a.events, a.opps].forEach(v=>{ const td=document.createElement('td'); td.textContent=v; tr.appendChild(td) });
+    return tr;
+  });
+  box.appendChild(table(['الهدف','مشاريع','فعاليات','فرص'], rows));
+}
+
+/* =================== Views binding =================== */
+function renderViews(){
+  viewsEl.innerHTML='';
+  let view;
+  if(activeTab==='projects') view = viewProjects();
+  if(activeTab==='events') view = viewEvents();
+  if(activeTab==='opps') view = viewOpps();
+  if(activeTab==='donations') view = viewDonations();
+  if(activeTab==='facilities') view = viewFacilities();
+  if(activeTab==='bookings') view = viewBookings();
+  if(activeTab==='speakers') view = viewSpeakers();
+  if(activeTab==='solutions') view = viewSolutions();
+  if(activeTab==='partnerships') view = viewPartnerships();
+  viewsEl.appendChild(view);
+}
+
+function renderRBAC(){
+  const host = document.getElementById('rbacTable');
+  host.innerHTML='';
+  const head = ['الدور','مشاريع','فعاليات','متحدثون','مرافق/حجوزات','فرص','تبرعات/محفظة','حلول','شراكات','رؤية 2030'];
+  const rows = ROLES.map(r=>{
+    const tr = document.createElement('tr');
+    const cells = [
+      r,
+      RBAC[r].some(p=>p.startsWith('project.'))?'✔':'—',
+      RBAC[r].some(p=>p.startsWith('event.'))?'✔':'—',
+      RBAC[r].some(p=>p.startsWith('speaker.'))?'✔':'—',
+      RBAC[r].some(p=>p.startsWith('facility.')||p.startsWith('booking.'))?'✔':'—',
+      RBAC[r].some(p=>p.startsWith('opportunity.'))?'✔':'—',
+      RBAC[r].some(p=>p.startsWith('donation.'))?'✔':'—',
+      RBAC[r].some(p=>p.startsWith('solution.'))?'✔':'—',
+      RBAC[r].some(p=>p.startsWith('partnership.'))?'✔':'—',
+      RBAC[r].some(p=>p.startsWith('vision.'))?'✔':'—',
+    ];
+    cells.forEach(v=>{ const td=document.createElement('td'); td.textContent=v; tr.appendChild(td) });
+    return tr;
+  });
+  host.appendChild(table(head, rows));
+}
+
+function renderAll(){
+  renderTabs(); renderViews(); renderRBAC(); renderVisionGoals(); renderVisionReport();
+}
+
+/* boot */
+setUserByRole('GOVERNMENT'); // افتراضيًا يبدأ كحكومي
+</script>
+</body>
+</html>
